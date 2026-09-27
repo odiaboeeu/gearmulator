@@ -4,7 +4,7 @@ add_executable(sc88_memory_test
 
 target_link_libraries(sc88_memory_test
     PRIVATE
-        88lib
+        sc88_headless_core
 )
 
 target_compile_features(sc88_memory_test
