@@ -108,6 +108,42 @@ The initial Linux x86-64 validation produced:
     WAV write: PASS
     SC88_AUDIO_OUTPUT=PASS
 
+## Linux AArch64 cross-build
+
+The SC-88 headless target has also been cross-compiled for Linux AArch64
+with JIT disabled.
+
+Required Ubuntu packages:
+
+    sudo apt install gcc-aarch64-linux-gnu g++-aarch64-linux-gnu binutils-aarch64-linux-gnu
+
+Configure:
+
+    rm -rf build-sc88-aarch64
+
+    cmake -S . -B build-sc88-aarch64 -DCMAKE_TOOLCHAIN_FILE="$PWD/cmake/aarch64-linux-gnu.cmake" -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DBUILD_TESTING=OFF -Dgearmulator_BUILD_JUCEPLUGIN=OFF -Dgearmulator_SYNTH_OSIRUS=OFF -Dgearmulator_SYNTH_OSTIRUS=OFF -Dgearmulator_SYNTH_VAVRA=OFF -Dgearmulator_SYNTH_XENIA=OFF -Dgearmulator_SYNTH_NODALRED2X=OFF -Dgearmulator_SYNTH_JE8086=OFF -Dgearmulator_SYNTH_88EMU=ON -Dgearmulator_BUILD_SC88_HEADLESS_TEST=ON -DCHIPS_FORCE_NO_JIT=ON
+
+Build:
+
+    cmake --build build-sc88-aarch64 --target sc88_headless_test --parallel "$(nproc)"
+
+Resulting executable:
+
+    build-sc88-aarch64/sc88-headless-test/sc88_headless_test
+
+Validated properties:
+
+    ELF64
+    AArch64
+    Little endian
+    JIT disabled
+    725 AArch64 compile commands
+    No SSE, AVX or x86 compile flags
+    Linux interpreter: /lib/ld-linux-aarch64.so.1
+
+The resulting executable is dynamically linked for Linux AArch64. It is
+not yet a bare-metal Circle binary.
+
 ## Scope
 
 The current experiment targets only the Roland SC-88.
