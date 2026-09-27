@@ -30,3 +30,8 @@ claude*.bat
 # python bytecode (scripts/perfhist.py)
 __pycache__/
 *.pyc
+# Experimental SC-88 headless build artifacts
+/build-sc88-headless/
+/sc88-headless-test/sc88_headless_test
+/sc88-headless-test/*.wav
+/sc88-headless-test/*.pcm

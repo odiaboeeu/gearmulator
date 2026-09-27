@@ -1,0 +1,109 @@
+# SC-88 headless test
+
+Experimental headless test for the Roland SC-88 emulation provided by
+Gearmulator 88emu.
+
+The test uses the public C interface from `88lib/c_interface.h` and the
+bundled static library `lib88emu.a`.
+
+## Current status
+
+Validated on Linux x86-64 using the interpreter implementations of the
+custom chips, with JIT disabled.
+
+Validated behavior:
+
+- SC-88 ROM set detection
+- SC-88 firmware boot
+- Two MIDI input ports
+- MIDI Program Change
+- MIDI Note On and Note Off
+- Stereo 16-bit PCM rendering
+- SC-88 front-panel text retrieval
+- WAV output
+- Non-silent audio output
+
+Validated native sample rate:
+
+    32000 Hz
+
+Validated front-panel text after boot:
+
+    A01001 Piano 1
+
+## ROM files
+
+ROM files are not included and must never be committed to this repository.
+
+The test expects the following files:
+
+    sc88_control.bin     524288 bytes
+    sc88_wave0.bin      2097152 bytes
+    sc88_wave1.bin      2097152 bytes
+    sc88_wave2.bin      2097152 bytes
+    sc88_wave3.bin      2097152 bytes
+
+The default ROM directory is:
+
+    /home/nelso/roms-sc88
+
+A different ROM directory may be passed as the first argument.
+
+## Configure lib88emu
+
+Run from the Gearmulator repository root:
+
+    rm -rf build-sc88-headless
+
+    cmake -S . -B build-sc88-headless -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -Dgearmulator_BUILD_JUCEPLUGIN=OFF -Dgearmulator_SYNTH_OSIRUS=OFF -Dgearmulator_SYNTH_OSTIRUS=OFF -Dgearmulator_SYNTH_VAVRA=OFF -Dgearmulator_SYNTH_XENIA=OFF -Dgearmulator_SYNTH_NODALRED2X=OFF -Dgearmulator_SYNTH_JE8086=OFF -Dgearmulator_SYNTH_88EMU=ON -DCHIPS_FORCE_NO_JIT=ON
+
+The expected configuration includes:
+
+    Custom-chip JIT through asmjit: FALSE
+    Custom-chip JIT through wasmJit: FALSE
+
+## Build lib88emu
+
+    cmake --build build-sc88-headless --target 88emu_bundle --parallel "$(nproc)"
+
+The resulting static library is:
+
+    build-sc88-headless/source/ronaldo/88emu/88lib/lib88emu.a
+
+## Build the test
+
+    g++ -std=c++17 -O2 -I"$PWD/source/ronaldo/88emu" sc88-headless-test/sc88_headless_test.cpp "$PWD/build-sc88-headless/source/ronaldo/88emu/88lib/lib88emu.a" -pthread -ldl -lrt -o sc88-headless-test/sc88_headless_test
+
+## Run
+
+    sc88-headless-test/sc88_headless_test /home/nelso/roms-sc88 sc88-headless-test/sc88_test.wav
+
+Expected final result:
+
+    SC88_AUDIO_OUTPUT=PASS
+
+## Initial validation
+
+The initial Linux x86-64 validation produced:
+
+    88emu library version: 2.2.26
+    SC-88 available: 1
+    Device sample rate: 32000
+    Output sample rate: 32000
+    MIDI ports: 2
+    Rendered frames: 144000
+    Non-zero frames: 101428
+    Peak left: 1643
+    Peak right: 1646
+    WAV write: PASS
+    SC88_AUDIO_OUTPUT=PASS
+
+## Scope
+
+The current experiment targets only the Roland SC-88.
+
+SC-88Pro support will be investigated after the SC-88 headless and
+bare-metal paths are stable.
+
+This is an experimental integration and is not an official Gearmulator
+or 88emu release.
