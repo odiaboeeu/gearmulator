@@ -147,3 +147,13 @@ option(
 if(gearmulator_BUILD_SC88_HEADLESS_TEST)
     add_subdirectory(sc88-headless-test)
 endif()
+
+option(
+    gearmulator_BUILD_SC88_MEMORY_TEST
+    "Build the direct SC-88 in-memory validation tool"
+    OFF
+)
+
+if(gearmulator_BUILD_SC88_MEMORY_TEST)
+    add_subdirectory(sc88-memory-test)
+endif()
