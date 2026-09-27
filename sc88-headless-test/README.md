@@ -55,7 +55,7 @@ Run from the Gearmulator repository root:
 
     rm -rf build-sc88-headless
 
-    cmake -S . -B build-sc88-headless -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -Dgearmulator_BUILD_JUCEPLUGIN=OFF -Dgearmulator_SYNTH_OSIRUS=OFF -Dgearmulator_SYNTH_OSTIRUS=OFF -Dgearmulator_SYNTH_VAVRA=OFF -Dgearmulator_SYNTH_XENIA=OFF -Dgearmulator_SYNTH_NODALRED2X=OFF -Dgearmulator_SYNTH_JE8086=OFF -Dgearmulator_SYNTH_88EMU=ON -DCHIPS_FORCE_NO_JIT=ON
+    cmake -S . -B build-sc88-headless -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -Dgearmulator_BUILD_JUCEPLUGIN=OFF -Dgearmulator_SYNTH_OSIRUS=OFF -Dgearmulator_SYNTH_OSTIRUS=OFF -Dgearmulator_SYNTH_VAVRA=OFF -Dgearmulator_SYNTH_XENIA=OFF -Dgearmulator_SYNTH_NODALRED2X=OFF -Dgearmulator_SYNTH_JE8086=OFF -Dgearmulator_SYNTH_88EMU=ON -Dgearmulator_BUILD_SC88_HEADLESS_TEST=ON -DCHIPS_FORCE_NO_JIT=ON
 
 The expected configuration includes:
 
@@ -72,11 +72,21 @@ The resulting static library is:
 
 ## Build the test
 
-    g++ -std=c++17 -O2 -I"$PWD/source/ronaldo/88emu" sc88-headless-test/sc88_headless_test.cpp "$PWD/build-sc88-headless/source/ronaldo/88emu/88lib/lib88emu.a" -pthread -ldl -lrt -o sc88-headless-test/sc88_headless_test
+Enable the test target while configuring:
+
+    -Dgearmulator_BUILD_SC88_HEADLESS_TEST=ON
+
+Build the target:
+
+    cmake --build build-sc88-headless --target sc88_headless_test --parallel "$(nproc)"
+
+Locate the resulting executable:
+
+    find build-sc88-headless -type f -name sc88_headless_test -perm -111
 
 ## Run
 
-    sc88-headless-test/sc88_headless_test /home/nelso/roms-sc88 sc88-headless-test/sc88_test.wav
+    build-sc88-headless/sc88-headless-test/sc88_headless_test /home/nelso/roms-sc88 sc88-headless-test/sc88_test.wav
 
 Expected final result:
 

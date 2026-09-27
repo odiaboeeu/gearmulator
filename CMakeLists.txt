@@ -137,3 +137,13 @@ if(UNIX AND NOT APPLE)
 endif()
 
 include(CPack)
+
+option(
+    gearmulator_BUILD_SC88_HEADLESS_TEST
+    "Build the experimental SC-88 headless validation tool"
+    OFF
+)
+
+if(gearmulator_BUILD_SC88_HEADLESS_TEST)
+    add_subdirectory(sc88-headless-test)
+endif()
