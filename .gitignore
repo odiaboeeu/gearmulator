@@ -35,3 +35,4 @@ __pycache__/
 /sc88-headless-test/sc88_headless_test
 /sc88-headless-test/*.wav
 /sc88-headless-test/*.pcm
+/sc88-memory-test/*.wav
