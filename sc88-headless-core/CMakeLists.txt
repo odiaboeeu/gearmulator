@@ -1,3 +1,42 @@
+add_library(sc88_headless_display STATIC
+    ${CMAKE_SOURCE_DIR}/source/framework/hardwareLib/hd44780.cpp
+)
+
+target_include_directories(sc88_headless_display
+    PUBLIC
+        ${CMAKE_SOURCE_DIR}/source/framework
+)
+
+target_compile_features(sc88_headless_display
+    PUBLIC
+        cxx_std_20
+)
+
+set_property(
+    TARGET sc88_headless_display
+    PROPERTY FOLDER "Ronaldo/88emu/headless"
+)
+
+add_library(sc88_headless_midi STATIC
+    ${CMAKE_SOURCE_DIR}/source/framework/synthLib/midiBufferParser.cpp
+    ${CMAKE_SOURCE_DIR}/source/framework/synthLib/midiRateLimiter.cpp
+)
+
+target_include_directories(sc88_headless_midi
+    PUBLIC
+        ${CMAKE_SOURCE_DIR}/source/framework
+)
+
+target_compile_features(sc88_headless_midi
+    PUBLIC
+        cxx_std_20
+)
+
+set_property(
+    TARGET sc88_headless_midi
+    PROPERTY FOLDER "Ronaldo/88emu/headless"
+)
+
 add_library(sc88_headless_engine STATIC
     ${CMAKE_SOURCE_DIR}/source/ronaldo/88emu/88lib/boards/sc88.cpp
     ${CMAKE_SOURCE_DIR}/source/ronaldo/88emu/88lib/mcu/sc88_submcu.cpp
@@ -12,8 +51,8 @@ target_include_directories(sc88_headless_engine
 
 target_link_libraries(sc88_headless_engine
     PUBLIC
-        hardwareLib
-        synthLib
+        sc88_headless_display
+        sc88_headless_midi
         h8500
         xpLib
 )
@@ -38,6 +77,7 @@ target_include_directories(sc88_headless_core
     PRIVATE
         ${CMAKE_SOURCE_DIR}/source/ronaldo/88emu
         ${CMAKE_SOURCE_DIR}/source/ronaldo
+        ${CMAKE_SOURCE_DIR}/source/framework
 )
 
 target_link_libraries(sc88_headless_core
