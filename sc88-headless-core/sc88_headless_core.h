@@ -50,6 +50,13 @@ int sc88_headless_play_short_message(
     uint8_t data2
 );
 
+int sc88_headless_play_sysex(
+    sc88_headless_context* context,
+    uint8_t port,
+    const uint8_t* data,
+    size_t size
+);
+
 void sc88_headless_render_int16(
     sc88_headless_context* context,
     int16_t* stereo,

@@ -294,6 +294,45 @@ int sc88_headless_play_short_message(
     return 1;
 }
 
+int sc88_headless_play_sysex(
+    sc88_headless_context* context,
+    const uint8_t port,
+    const uint8_t* data,
+    const size_t size
+)
+{
+    if (!sc88_headless_is_valid(context))
+        return 0;
+
+    if (
+        port >= 2 ||
+        !data ||
+        size < 2 ||
+        data[0] != 0xF0 ||
+        data[size - 1] != 0xF7
+    )
+    {
+        return 0;
+    }
+
+    synthLib::SMidiEvent event(
+        synthLib::MidiEventSource::Host
+    );
+
+    event.port = port;
+    event.sysex.assign(
+        data,
+        data + size
+    );
+
+    context->board->addMidiEvent(
+        event,
+        port
+    );
+
+    return 1;
+}
+
 void sc88_headless_render_int16(
     sc88_headless_context* context,
     int16_t* stereo,
