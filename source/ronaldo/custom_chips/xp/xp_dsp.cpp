@@ -1,6 +1,8 @@
 #include "xp_dsp.h"
 
+#if !defined(CHIPS_FORCE_NO_JIT)
 #include "xp_dsp_jit.h"
+#endif
 #include "xp_dsp_ops.h"
 
 #ifdef _MSC_VER
@@ -57,6 +59,7 @@ namespace xpLib
 		m_flat = FlatProgram{};
 		m_programTainted = true;
 	}
+#if !defined(CHIPS_FORCE_NO_JIT)
 
 	DspJitDispatcher& Dsp::jit()
 	{
@@ -66,6 +69,8 @@ namespace xpLib
 		}
 		return *m_jit;
 	}
+#endif
+
 
 	void Dsp::writePram(const size_t _slot, const uint32_t _value)
 	{
@@ -271,8 +276,13 @@ namespace xpLib
 	void Dsp::step(const StepRequest& _request)
 	{
 		syncProgram(_request, true);
+#if defined(CHIPS_FORCE_NO_JIT)
+		runFrame(m_state, _request);
+#else
 		runJitFrame(_request);
+#endif
 	}
+#if !defined(CHIPS_FORCE_NO_JIT)
 
 	void Dsp::runJitFrame(const StepRequest& _request)
 	{
@@ -295,6 +305,8 @@ namespace xpLib
 		run(&frame);
 		dspOps::endFrame(m_state, context);
 	}
+#endif
+
 
 	void Dsp::stepLinkedEngines(Dsp& _a, DspState& _aState, const StepRequest& _aRequest, Dsp& _b, DspState& _bState,
 								const StepRequest& _bRequest)
@@ -321,6 +333,7 @@ namespace xpLib
 		dspOps::endFrame(_aState, aContext);
 		dspOps::endFrame(_bState, bContext);
 	}
+#if !defined(CHIPS_FORCE_NO_JIT)
 
 	void Dsp::stepLinkedJit(Dsp& _a, const StepRequest& _aRequest, Dsp& _b, const StepRequest& _bRequest)
 	{
@@ -360,11 +373,17 @@ namespace xpLib
 		dspOps::endFrame(_a.m_state, aContext);
 		dspOps::endFrame(_b.m_state, bContext);
 	}
+#endif
+
 
 	void Dsp::stepLinked(Dsp& _a, const StepRequest& _aRequest, Dsp& _b, const StepRequest& _bRequest)
 	{
 		_a.syncProgram(_aRequest, false, true);
 		_b.syncProgram(_bRequest, false, true);
+#if defined(CHIPS_FORCE_NO_JIT)
+		stepLinkedEngines(_a, _a.m_state, _aRequest, _b, _b.m_state, _bRequest);
+#else
 		stepLinkedJit(_a, _aRequest, _b, _bRequest);
+#endif
 	}
 } // namespace xpLib

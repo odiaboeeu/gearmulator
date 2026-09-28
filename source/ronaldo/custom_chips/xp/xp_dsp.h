@@ -10,7 +10,9 @@
 
 namespace xpLib
 {
+#if !defined(CHIPS_FORCE_NO_JIT)
 	class DspJitDispatcher;
+#endif
 
 	namespace dspNaive
 	{
@@ -141,10 +143,12 @@ namespace xpLib
 		// Two chips in lockstep on the naive engine.
 		static void stepLinkedEngines(Dsp& _a, DspState& _aState, const StepRequest& _aRequest, Dsp& _b,
 									  DspState& _bState, const StepRequest& _bRequest);
+#if !defined(CHIPS_FORCE_NO_JIT)
 		DspJitDispatcher& jit();
 		// Runs one frame on the compiled code when it is available, else on the naive engine.
 		void runJitFrame(const StepRequest& _request);
 		static void stepLinkedJit(Dsp& _a, const StepRequest& _aRequest, Dsp& _b, const StepRequest& _bRequest);
+#endif
 
 		DspProgram m_program{};
 		DspState m_state{};
@@ -152,8 +156,10 @@ namespace xpLib
 		FlatProgram m_flat{};
 		uint64_t m_generation = 0;
 		bool m_programTainted = true;
+#if !defined(CHIPS_FORCE_NO_JIT)
 		std::unique_ptr<DspJitDispatcher> m_jit;  // jit engines only; not copied
 		std::unique_ptr<DspJitDispatcher> m_link; // the lockstep pair function, owned by the first chip
 		const Dsp* m_linkPartner = nullptr;
+#endif
 	};
 } // namespace xpLib

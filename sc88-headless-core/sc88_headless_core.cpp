@@ -130,6 +130,72 @@ std::string readDisplayText(
 
 extern "C"
 {
+namespace
+{
+sc88_headless_context* createContext(
+    const sc88_headless_rom_set* roms
+)
+{
+    std::vector<uint8_t> control(
+        roms->control,
+        roms->control +
+            roms->control_size
+    );
+
+    std::array<
+        std::vector<uint8_t>,
+        emu88Lib::WaveRom::ChipCount
+    > waveChips;
+
+    for (
+        size_t index = 0;
+        index < waveChips.size();
+        ++index
+    )
+    {
+        waveChips[index].assign(
+            roms->wave[index],
+            roms->wave[index] +
+                roms->wave_size[index]
+        );
+    }
+
+    emu88Lib::WaveRom waveRom(
+        waveChips
+    );
+
+    if (!waveRom.isValid())
+        return nullptr;
+
+    auto context =
+        std::unique_ptr<sc88_headless_context>(
+            new (std::nothrow)
+                sc88_headless_context
+        );
+
+    if (!context)
+        return nullptr;
+
+    context->board =
+        std::make_unique<emu88Lib::Sc88>(
+            std::move(control),
+            waveRom.takeData(),
+            emu88Lib::Model::Sc88,
+            true
+        );
+
+    if (
+        !context->board ||
+        !context->board->isValid()
+    )
+    {
+        return nullptr;
+    }
+
+    return context.release();
+}
+}
+
 sc88_headless_context* sc88_headless_create(
     const sc88_headless_rom_set* roms
 )
@@ -137,70 +203,18 @@ sc88_headless_context* sc88_headless_create(
     if (!validateRomSet(roms))
         return nullptr;
 
+#if defined(SC88_HEADLESS_NO_EXCEPTIONS)
+    return createContext(roms);
+#else
     try
     {
-        std::vector<uint8_t> control(
-            roms->control,
-            roms->control +
-                roms->control_size
-        );
-
-        std::array<
-            std::vector<uint8_t>,
-            emu88Lib::WaveRom::ChipCount
-        > waveChips;
-
-        for (
-            size_t index = 0;
-            index < waveChips.size();
-            ++index
-        )
-        {
-            waveChips[index].assign(
-                roms->wave[index],
-                roms->wave[index] +
-                    roms->wave_size[index]
-            );
-        }
-
-        emu88Lib::WaveRom waveRom(
-            waveChips
-        );
-
-        if (!waveRom.isValid())
-            return nullptr;
-
-        auto context =
-            std::unique_ptr<sc88_headless_context>(
-                new (std::nothrow)
-                    sc88_headless_context
-            );
-
-        if (!context)
-            return nullptr;
-
-        context->board =
-            std::make_unique<emu88Lib::Sc88>(
-                std::move(control),
-                waveRom.takeData(),
-                emu88Lib::Model::Sc88,
-                true
-            );
-
-        if (
-            !context->board ||
-            !context->board->isValid()
-        )
-        {
-            return nullptr;
-        }
-
-        return context.release();
+        return createContext(roms);
     }
     catch (...)
     {
         return nullptr;
     }
+#endif
 }
 
 void sc88_headless_destroy(
