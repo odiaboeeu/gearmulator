@@ -52,7 +52,7 @@ namespace xpLib::xpInternal
 	{
 		std::array<uint16_t, 256> values{};
 		for (size_t i = 0; i < values.size(); ++i)
-			values[i] = static_cast<uint16_t>(std::lround(0x4000 * std::exp2(static_cast<double>(i) / 256.0)));
+			values[i] = static_cast<uint16_t>(::lround(0x4000 * ::exp2(static_cast<double>(i) / 256.0)));
 		return values;
 	}();
 
