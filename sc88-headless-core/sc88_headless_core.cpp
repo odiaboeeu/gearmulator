@@ -79,7 +79,7 @@ int16_t convertDacSample(
         ) * Sc88DacScale;
 
     return static_cast<int16_t>(
-        std::lround(
+        ::lround(
             std::clamp(
                 value,
                 -1.0f,
